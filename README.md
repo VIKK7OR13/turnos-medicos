@@ -76,6 +76,21 @@ Los médicos se devuelven con su especialidad, y los turnos con su paciente y su
 }
 ```
 
+### Filtros y paginación
+
+El listado de turnos (`GET /api/turnos`) acepta filtros opcionales, que se pueden combinar:
+
+| Parámetro | Descripción |
+|-----------|-------------|
+| `medico_id` | Turnos de un médico |
+| `paciente_id` | Turnos de un paciente |
+| `fecha` | Turnos de una fecha (`2026-12-15`) |
+| `estado` | `pendiente`, `confirmado` o `cancelado` |
+
+Ejemplo: `GET /api/turnos?medico_id=2&estado=pendiente`
+
+Los resultados vienen ordenados por fecha y hora, paginados de a 10. Para pedir otra página se usa `?page=2`.
+
 ## Reglas de negocio y validaciones
 
 - No se pueden asignar dos turnos al mismo médico en la misma fecha y hora.

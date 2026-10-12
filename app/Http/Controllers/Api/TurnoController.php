@@ -10,10 +10,28 @@ use Illuminate\Validation\Rule;
 
 class TurnoController extends Controller
 {
-    public function index(): JsonResponse
-    {
-        return response()->json(Turno::with(['paciente', 'medico.especialidad'])->get());
+    public function index(Request $request): JsonResponse
+{
+    $consulta = Turno::with(['paciente', 'medico.especialidad']);
+
+    if ($request->filled('medico_id')) {
+        $consulta->where('medico_id', $request->medico_id);
     }
+
+    if ($request->filled('paciente_id')) {
+        $consulta->where('paciente_id', $request->paciente_id);
+    }
+
+    if ($request->filled('fecha')) {
+        $consulta->where('fecha', $request->fecha);
+    }
+
+    if ($request->filled('estado')) {
+        $consulta->where('estado', $request->estado);
+    }
+
+  return response()->json($consulta->orderBy('fecha')->orderBy('hora')->paginate(10)->withQueryString());
+}
 
     public function store(Request $request): JsonResponse
     {
