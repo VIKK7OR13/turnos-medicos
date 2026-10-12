@@ -1,58 +1,90 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Turnos Médicos API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+API REST para gestionar turnos médicos, desarrollada con Laravel. Permite administrar especialidades, médicos, pacientes y turnos, con validaciones pensadas para el ámbito de la salud.
 
-## About Laravel
+## Tecnologías
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- PHP 8.4
+- Laravel
+- SQLite
+- Laravel Herd (entorno de desarrollo local)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Modelo de datos
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **Especialidad**: tiene muchos médicos.
+- **Médico**: pertenece a una especialidad y tiene muchos turnos.
+- **Paciente**: tiene muchos turnos.
+- **Turno**: pertenece a un paciente y a un médico.
 
-## Learning Laravel
+## Instalación
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+1. Clonar el repositorio:
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+git clone https://github.com/VIKK7OR13/turnos-medicos.git
+cd turnos-medicos
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+2. Instalar las dependencias:
 
-## Contributing
+```bash
+composer install
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+3. Crear el archivo de configuración y generar la clave de la aplicación:
 
-## Code of Conduct
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+4. Crear las tablas y cargar los datos de prueba (si Laravel pregunta si querés crear el archivo de la base SQLite, respondé `yes`):
 
-## Security Vulnerabilities
+```bash
+php artisan migrate:fresh --seed
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+5. Levantar el proyecto (con Laravel Herd queda disponible en `http://turnos-medicos.test`; sin Herd, se puede usar `php artisan serve`).
 
-## License
+## Endpoints
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Cada recurso tiene las cinco operaciones del CRUD:
+
+| Método | Ruta | Acción |
+|--------|------|--------|
+| GET | `/api/{recurso}` | Listar todos |
+| POST | `/api/{recurso}` | Crear uno |
+| GET | `/api/{recurso}/{id}` | Ver uno |
+| PUT/PATCH | `/api/{recurso}/{id}` | Modificar |
+| DELETE | `/api/{recurso}/{id}` | Eliminar |
+
+Recursos disponibles: `especialidades`, `medicos`, `pacientes` y `turnos`.
+
+Los médicos se devuelven con su especialidad, y los turnos con su paciente y su médico (incluida la especialidad).
+
+### Ejemplo: crear un turno
+
+`POST /api/turnos`
+
+```json
+{
+  "paciente_id": 1,
+  "medico_id": 2,
+  "fecha": "2026-12-15",
+  "hora": "09:30",
+  "motivo": "Control anual"
+}
+```
+
+## Reglas de negocio y validaciones
+
+- No se pueden asignar dos turnos al mismo médico en la misma fecha y hora.
+- La fecha de un turno no puede ser anterior a hoy.
+- El estado de un turno puede ser `pendiente` (valor por defecto), `confirmado` o `cancelado`.
+- El DNI de los pacientes y la matrícula de los médicos no pueden repetirse.
+- La fecha de nacimiento de un paciente debe ser anterior a hoy.
+- El teléfono y la obra social del paciente son opcionales.
+
+## Autor
+
+Victor - [@VIKK7OR13](https://github.com/VIKK7OR13)
